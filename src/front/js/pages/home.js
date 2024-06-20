@@ -1,26 +1,71 @@
-import React, { useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Context } from "../store/appContext";
-import rigoImageUrl from "../../img/rigo-baby.jpg";
-import "../../styles/home.css";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
-	const { store, actions } = useContext(Context);
+    const { store, actions } = useContext(Context);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const navigate = useNavigate();
 
-	return (
-		<div className="text-center mt-5">
-			<h1>Hello Rigo!!</h1>
-			<p>
-				<img src={rigoImageUrl} />
-			</p>
-			<div className="alert alert-info">
-				{store.message || "Loading message from the backend (make sure your python backend is running)..."}
-			</div>
-			<p>
-				This boilerplate comes with lots of documentation:{" "}
-				<a href="https://start.4geeksacademy.com/starters/react-flask">
-					Read documentation
-				</a>
-			</p>
-		</div>
-	);
+    const handleClick = () => {
+        actions.login(email, password);
+    };
+
+    useEffect(() => {
+        if (store.token && store.token !== "" && store.token !== undefined) {
+            navigate("/private");
+        }
+    }, [store.token, navigate]);
+
+    // Añade un efecto para redirigir a Home después de cerrar sesión
+    useEffect(() => {
+        if (!store.token) {
+            navigate("/");
+        }
+    }, [store.token, navigate]);
+
+    return (
+        <div className="container text-center mt-5">
+            <div className="row justify-content-center">
+                <div className="col-md-6">
+                    <div className="card shadow-lg">
+                        <div className="card-header bg-primary text-white">
+                            <h2>Login</h2>
+                        </div>
+                        <div className="card-body">
+                            {store.token && store.token !== "" && store.token !== undefined ? (
+                                <p>You are logged in with this token: {store.token}</p>
+                            ) : (
+                                <>
+                                    <div className="mb-3">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="Email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <input
+                                            type="password"
+                                            className="form-control"
+                                            placeholder="Password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                        />
+                                    </div>
+                                    <button onClick={handleClick} className="btn btn-success w-100">Login</button>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
 };
+
+
+
